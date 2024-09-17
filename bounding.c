@@ -268,7 +268,7 @@ double SDPbound(BabNode *node, Problem *SP, Problem *PP) {
         if (params.detailedOutput) {
             fprintf(output, 
                     "%4d  %7.2f  %9.2f  %3d  %6.0e  %5d    -%-5d +%-5d ", 
-                    count, time_CPU() - TIME, bound, PP->bundle, viol3, PP->NIneq, Tri_NumSubtracted, Tri_NumAdded);
+                    count, time_wall_clock() - TIME, bound, PP->bundle, viol3, PP->NIneq, Tri_NumSubtracted, Tri_NumAdded);
 
             if ( viol3 < 0.3 ) {
                 if ( params.include_Pent )
@@ -361,7 +361,6 @@ double SDPbound(BabNode *node, Problem *SP, Problem *PP) {
         }
 
         /* increase number of bundle iterations */
-        //bdl_iter += count % 2;
         ++bdl_iter;
         bdl_iter = (bdl_iter  < params.max_bundle_iter) ? bdl_iter  : params.max_bundle_iter;
 

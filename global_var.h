@@ -9,7 +9,7 @@ Problem *SP;                        // original problem instance
 Problem *PP;                        // subproblem instance
 int stopped = 0;                    // true if the algorithm stopped at root node or after a time limit
 double root_bound;                  // SDP upper bound at root node
-double TIME;                        // CPU time
+double TIME;                        // wall clock time
 /********************************************************/
 
 

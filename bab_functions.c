@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/resource.h>       // for time measuring
+#include <sys/resource.h>       
 #include <math.h>
-#include <time.h>
+#include <sys/time.h>
 
 #include "biqbin.h"
   
@@ -68,7 +68,7 @@ void Init_PQ(void) {
 void Bab_Init(int argc, char **argv) {
 
     // Start the timer
-    TIME = time_CPU();
+    TIME = time_wall_clock();
 
     // Process the command line arguments
     processCommandLineArguments(argc, argv);
@@ -140,7 +140,7 @@ void Bab_GenChild(BabNode *node) {
 
     // If the algorithm stops before finding the optimal solution, search in the 
     // nodes queue for the worst upper bound. 
-    if (stopped || params.root || (params.time_limit > 0 && (time_CPU() - TIME) > params.time_limit) ) {
+    if (stopped || params.root || (params.time_limit > 0 && (time_wall_clock() - TIME) > params.time_limit) ) {
         
         // signal to printFinalOutput that algorithm stopped early
         stopped = 1;        
@@ -212,10 +212,12 @@ void Bab_GenChild(BabNode *node) {
 
 
 /* timer */
-double time_CPU(void)  {
-    struct rusage usage;
-    getrusage(RUSAGE_SELF, &usage);
-    return usage.ru_utime.tv_sec + (usage.ru_utime.tv_usec * 1e-6);
+double time_wall_clock(void)  {
+ 
+    struct timeval timecheck;
+    gettimeofday(&timecheck, NULL);
+    return timecheck.tv_sec + timecheck.tv_usec * 1e-6;
+
 }
 
 
@@ -259,13 +261,13 @@ void printFinalOutput(FILE *file, int num_nodes) {
         printSolution(file);
     }
 
-    fprintf(file, "CPU time = %.2f s\n\n", time_CPU() - TIME);
+    fprintf(file, "Wall clock time = %.2f s\n\n", time_wall_clock() - TIME);
 }
 
 
 /* Bab function called at the end of the execution.
  * This function prints output: number of 
- * nodes evaluated, the best solution found, the nodes best bound, the CPU time.
+ * nodes evaluated, the best solution found, the nodes best bound, the wall clock time.
  * It is also used to free the memory allocated by the program.
  */
 void Bab_End(void) {
