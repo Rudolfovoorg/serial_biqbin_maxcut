@@ -4,12 +4,11 @@
 OBJ = Obj
 
 # Compiler: other options (linux users) --> gcc, icc
-CC = icc
+CC = gcc
 
 # NOTE: -framework Accelerate is for MAC, Linux users set to -lopenblas -lm (or use intel mkl)
 LINALG 	 = -lopenblas -lm 
 OPTI     = -O3 
-#-march=native -ffast-math -fexceptions -fPIC -fno-common
 
 # binary
 BINS =  biqbin
