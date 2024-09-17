@@ -7,9 +7,9 @@
 #define BIG_NUMBER 1e+9
 
 /* Maximum number of cutting planes (triangle, pentagonal and heptagonal inequalities) allowed to add */
-#define MaxTriIneqAdded 20000
-#define MaxPentIneqAdded 20000
-#define MaxHeptaIneqAdded 20000
+#define MaxTriIneqAdded 10000
+#define MaxPentIneqAdded 10000
+#define MaxHeptaIneqAdded 10000
 
 /* Maximum size of bundle */
 #define MaxBundle 400
@@ -35,14 +35,14 @@
 // BiqBin parameters and default values
 #ifndef PARAM_FIELDS
 #define PARAM_FIELDS \
-    P(int,      init_bundle_iter,    "%d",                 3) \
-    P(int,      max_bundle_iter,     "%d",                10) \
-    P(int,      min_outer_iter,      "%d",                10) \
-    P(int,      max_outer_iter,      "%d",                25) \
+    P(int,      init_bundle_iter,    "%d",                 5) \
+    P(int,      max_bundle_iter,     "%d",                20) \
+    P(int,      min_outer_iter,      "%d",                20) \
+    P(int,      max_outer_iter,      "%d",                30) \
     P(double,   violated_Ineq,       "%lf",             5e-2) \
     P(int,      TriIneq,             "%d",               500) \
-    P(int,      Pent_Trials,         "%d",                60) \
-    P(int,      Hepta_Trials,        "%d",                45) \
+    P(int,      Pent_Trials,         "%d",               100) \
+    P(int,      Hepta_Trials,        "%d",                75) \
     P(int,      include_Pent,        "%d",                 1) \
     P(int,      include_Hepta,       "%d",                 1) \
     P(int,      root,                "%d",                 0) \
@@ -185,7 +185,7 @@ void Bab_Init(int argc, char **argv);
 double evaluateSolution(int *sol);
 int updateSolution(int *x);
 void Bab_GenChild(BabNode *node);
-double time_CPU(void);
+double time_wall_clock(void);
 void printSolution(FILE *file);
 void printFinalOutput(FILE *file, int num_nodes);
 void Bab_End(void);
@@ -221,7 +221,7 @@ double Bab_LBGet(void);                                 // returns global lower 
 int Bab_numEvalNodes(void);                             // returns number of evaluated nodes
 void Bab_incEvalNodes(void);                            // increment the number of evaluated nodes
 int isPQEmpty(void);                                    // checks if queue is empty
-int Bab_LBUpd(double new_lb, BabSolution *bs);             // checks and updates lower bound if better found, returns 1 if success
+int Bab_LBUpd(double new_lb, BabSolution *bs);          // checks and updates lower bound if better found, returns 1 if success
 BabNode* newNode(BabNode *parentNode);                  // create child node from parent
 BabNode* Bab_PQPop(void);                               // take and remove the node with the highest priority
 void Bab_PQInsert(BabNode *node);                       // insert node into priority queue based on intbound and level 

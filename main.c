@@ -10,7 +10,7 @@ extern Heap *heap;
 int main(int argc, char **argv) {
 
     // Seed the random number generator
-    srand(2020);
+    srand(2024);
 
     BabNode *node;
 
