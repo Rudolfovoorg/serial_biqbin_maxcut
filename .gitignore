@@ -1,0 +1,7 @@
+obj/
+Obj/
+.DS_Store/
+*.o
+biqbin
+*.output*
+
