@@ -35,7 +35,7 @@ if [[ "$output_filtered" == "$expected_output_filtered" ]]; then
 else
     echo "Failed!"
 
-    diff <(echo "$output_no_filtered") <(echo "$expected_output_filtered")
+    diff <(echo "$output_filtered") <(echo "$expected_output_filtered")
 
     exit 1
 fi
