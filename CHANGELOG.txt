@@ -7,4 +7,5 @@
 - modified Makefile
     - added targets: test, docker, docker-clean, docker-test
 - renamed gamma to dual_gamma as it is already used in a C library
+-added python files and python tests
 
