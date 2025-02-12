@@ -8,7 +8,6 @@ extern Heap *heap;
 
                       
 int main(int argc, char **argv) {
-
     // Seed the random number generator
     srand(2024);
 
@@ -22,19 +21,13 @@ int main(int argc, char **argv) {
      * evaluates root node and places it in priority queue
      * if not able to prune
      */
-    Bab_Init(argc, argv);
 
-    while (!isPQEmpty()) {
-        node = Bab_PQPop();
-        Bab_GenChild(node);
-    }
+    MaxCutInputData *inputData;
+    BiqBinParameters params_local;
 
-    /* prints solution and frees memory */
-    Bab_End();
+    open_output_file(argv[1]); // if all is well open the output file
+    params_local = readParameters(argv[2]); // read params file, get BiqBinParameters structure
+    inputData = readGraphFile(argv[1]); // read graph file, get MaxCutInputData structure
 
-    free(heap->data);
-    free(heap);
-
-    return 0;
-    
+    compute(inputData, params_local); // Compute with the input data and parameters passed as args
 }

@@ -5,3 +5,6 @@ Obj/
 biqbin
 *.output*
 
+__pycache__/serial_biqbin_maxcut.cpython-310.pyc
+.vscode/settings.json
+.gitignore

@@ -4,6 +4,7 @@ RUN apt-get update
 RUN apt install build-essential -y
 RUN apt-get install libopenblas-dev -y
 RUN apt-get install python3 -y
+RUN apt-get install python3-pip -y
 
 WORKDIR /solver
 COPY . .

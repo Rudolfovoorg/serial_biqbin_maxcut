@@ -99,6 +99,11 @@ typedef struct Problem {
     int bundle;         // size of bundle
 } Problem;
 
+typedef struct {
+    int num_vertices;    // Number of vertices in the graph
+    int num_edges;       // Number of edges in the graph
+    double *Adj;         // Adjacency matrix to store edge weights
+} MaxCutInputData;
 
 /* Maximum number of variables */
 #define NMAX 512
@@ -181,7 +186,7 @@ void freeMemory(void);
 /* bab_functions.c */
 void initializeBabSolution(void);
 void Init_PQ(void);
-void Bab_Init(int argc, char **argv);
+void Bab_Init();
 double evaluateSolution(int *sol);
 int updateSolution(int *x);
 void Bab_GenChild(BabNode *node);
@@ -246,11 +251,17 @@ void op_Bt(const Problem *P, double *X, const double *tt);
 /* process_input.c */
 void print_symmetric_matrix(double *Mat, int N);
 void processCommandLineArguments(int argc, char **argv);
-void readData(const char *instance);
-void readParameters(const char *path);
+MaxCutInputData* readGraphFile(const char *instance);
+BiqBinParameters readParameters(const char *path);
+void setParams(BiqBinParameters params_in);
+void process_adj_matrix_set_PP_SP(MaxCutInputData *input_data);
+void open_output_file(const char *name);
+void print_parameters(BiqBinParameters params);
 
 /* qap_simuted_annealing.c */
 double qap_simulated_annealing(int *H, int k, double *X, int n, int *pent);
 
+/* biqbin.c */
+int compute(MaxCutInputData *MC_input_data, BiqBinParameters biqbin_parameters);
 
 #endif /*BIQBIN_H */

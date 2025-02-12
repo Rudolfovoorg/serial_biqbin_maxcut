@@ -14,7 +14,7 @@ CC ?= gcc
 
 # NOTE: -framework Accelerate is for MAC, Linux users set to -lopenblas -lm (or use intel mkl)
 LINALG 	 = -lopenblas -lm 
-OPTI     = -O3 -fPIC
+OPTI     = -O3 -fPIC -g
 
 # binary
 BINS =  biqbin
@@ -38,7 +38,8 @@ BBOBJS = $(OBJ)/bundle.o $(OBJ)/allocate_free.o $(OBJ)/bab_functions.o \
 	 	 $(OBJ)/bounding.o $(OBJ)/cutting_planes.o \
          $(OBJ)/evaluate.o $(OBJ)/heap.o $(OBJ)/ipm_mc_pk.o \
          $(OBJ)/heuristic.o $(OBJ)/main.o $(OBJ)/operators.o \
-         $(OBJ)/process_input.o $(OBJ)/qap_simulated_annealing.o
+         $(OBJ)/process_input.o $(OBJ)/qap_simulated_annealing.o \
+		 $(OBJ)/biqbin.o
 
 # All objects
 OBJS = $(BBOBJS)

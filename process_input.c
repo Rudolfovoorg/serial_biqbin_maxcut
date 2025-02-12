@@ -6,9 +6,9 @@
 #include "biqbin.h"
 
 extern FILE *output;
-extern BiqBinParameters params;
-extern Problem *SP;             
-extern Problem *PP;            
+extern Problem *SP;
+extern Problem *PP;
+extern BiqBinParameters params; // global parameters :(
 extern int BabPbSize;
 
 // macro to handle the errors in the input reading
@@ -41,44 +41,47 @@ void processCommandLineArguments(int argc, char **argv) {
         exit(1);
     }
 
+    /*** Read the input file instance ***/
+    MaxCutInputData *inputdata = readGraphFile(argv[1]);
+    process_adj_matrix_set_PP_SP(inputdata);
+    /*** Read the parameters from a user file ***/
+    readParameters(argv[2]);
+}
+
+void open_output_file(const char *name) {
+
     // Create the output file
     char output_path[200];
-    sprintf(output_path, "%s.output", argv[1]);
+    sprintf(output_path, "%s.output", name);
 
     // Check if the file already exists, if so append _<NUMBER> to the end of the output file name
     struct stat buffer;
     int counter = 1;
     
     while (stat(output_path, &buffer) == 0)
-        sprintf(output_path, "%s.output_%d", argv[1], counter++);
+        sprintf(output_path, "%s.output_%d", name, counter++);
 
     output = fopen(output_path, "w");
     if (!output) {
         fprintf(stderr, "Error: Cannot create output file.\n");
         exit(1);
     }
-
-    /*** Read the input file instance ***/
-    readData(argv[1]);
-
-    /*** Read the parameters from a user file ***/
-    readParameters(argv[2]);
 }
 
 
-
 /* Read parameters contained in the file given by the argument */
-void readParameters(const char *path) {
+BiqBinParameters readParameters(const char *path) {
 
     FILE* paramfile;
     char s[128];            // read line
     char param_name[50];
+    BiqBinParameters params_local;
 
     // Initialize every parameter with its default value
-#define P(type, name, format, def_value)\
-    params.name = def_value;
+    #define P(type, name, format, def_value)\
+    params_local.name = def_value;
     PARAM_FIELDS
-#undef P
+    #undef P
 
     // open parameter file
     if ( (paramfile = fopen(path, "r")) == NULL ) {
@@ -93,80 +96,43 @@ void readParameters(const char *path) {
             sscanf(s, "%[^=^ ]", param_name);
 
             // read parameter value
-#define P(type, name, format, def_value)\
+        #define P(type, name, format, def_value)\
             if(strcmp(#name, param_name) == 0)\
-            sscanf(s, "%*[^=]="format"\n", &(params.name));
+            sscanf(s, "%*[^=]="format"\n", &(params_local.name));
             PARAM_FIELDS
-#undef P
+        #undef P
 
         }
     }
     fclose(paramfile);
-
-    // print parameters to output file
-    fprintf(output, "BiqBin parameters:\n");
-#define P(type, name, format, def_value)\
-            fprintf(output, "%20s = "format"\n", #name, params.name);
-    PARAM_FIELDS
-#undef P
+    return params_local;
 }
 
+void setParams(BiqBinParameters params_in) {
+    params = params_in;
+}
 
-/*** read MAX-CUT graph file ***/
-void readData(const char *instance) {
+void print_parameters(BiqBinParameters params) {
+    // print parameters to output file
+    fprintf(output, "BiqBin parameters:\n");
+    #define P(type, name, format, def_value)\
+            fprintf(output, "%20s = "format"\n", #name, params.name);
+    PARAM_FIELDS
+    #undef P
+}
 
-    // open input file
-    FILE *f = fopen(instance, "r");
-    if (f == NULL) {
-        fflush(stdout);
-        fprintf(stderr, "Error: problem opening input file %s\n", instance);
-        exit(1);
-    }
-    printf("Input file: %s\n", instance);
-    fprintf(output,"Input file: %s\n", instance);
-
-
-    int num_vertices;
-    int num_edges;
-
-    READING_ERROR(f, fscanf(f, "%d %d \n", &num_vertices, &num_edges) != 2,
-                  "Problem reading number of vertices and edges");
-    READING_ERROR(f, num_vertices <= 0, "Number of vertices has to be positive");
-
-    // OUTPUT information on instance
-    fprintf(stdout, "\nGraph has %d vertices and %d edges.\n\n", num_vertices, num_edges);
-    fprintf(output, "\nGraph has %d vertices and %d edges.\n\n", num_vertices, num_edges);
-
-    // read edges and store them in matrix Adj
-    // NOTE: last node is fixed to 0
-    int i, j;
-    double weight;
-
-    // Adjacency matrix Adj: allocate and set to 0 
-    double *Adj;
-    alloc_matrix(Adj, num_vertices, double);
-
-    for (int edge = 0; edge < num_edges; ++edge) {
-        
-        READING_ERROR(f, fscanf(f, "%d %d %lf \n", &i, &j, &weight) != 3,
-                      "Problem reading edges of the graph"); 
-
-        READING_ERROR(f, ((i < 1 || i > num_vertices) || (j < 1 || j > num_vertices)),
-                      "Problem with edge. Vertex not in range");  
-        
-        Adj[ num_vertices * (j - 1) + (i - 1) ] = weight;
-        Adj[ num_vertices * (i - 1) + (j - 1) ] = weight;      
-    }   
-
-    fclose(f);
-
+/// @brief Essential before compute!!! Read input data and construct and set the matrices SP->L and PP->L.
+/// @param input_data 
+void process_adj_matrix_set_PP_SP(MaxCutInputData *input_data) {
+    int num_vertices = input_data->num_vertices;
+    double *Adj = input_data->Adj;
     // allocate memory for original problem SP and subproblem PP
     alloc(SP, Problem);
     alloc(PP, Problem);
 
     // size of matrix L
     SP->n = num_vertices;   
-    PP->n = SP->n;              
+    PP->n = SP->n;
 
     // allocate memory for objective matrices for SP and PP
     alloc_matrix(SP->L, SP->n, double);
@@ -235,6 +201,55 @@ void readData(const char *instance) {
     // NOTE: PP->L is computed in createSubproblem (evaluate.c)
     free(Adj);
     free(Adje);
-    free(tmp);  
+    free(tmp);
 }
 
+/// @brief read graph file and store the information in a MaxCutInputData structure
+/// @param instance 
+/// @return MaxCutInputData*
+MaxCutInputData* readGraphFile(const char *instance) {
+    MaxCutInputData *inputData = (MaxCutInputData *)malloc(sizeof(MaxCutInputData));
+    if (inputData == NULL) {
+        fprintf(stderr, "Memory allocation failed for inputData\n");
+        exit(1);
+    }
+    
+    FILE *f = fopen(instance, "r");
+    if (f == NULL) {
+        fflush(stdout);
+        fprintf(stderr, "Error: problem opening input file %s\n", instance);
+        exit(1);
+    }
+    printf("Input file: %s\n", instance);
+    fprintf(output,"Input file: %s\n", instance);
+
+    // Reading the number of vertices and edges
+    READING_ERROR(f, fscanf(f, "%d %d \n", &inputData->num_vertices, &inputData->num_edges) != 2,
+                  "Problem reading number of vertices and edges");
+    READING_ERROR(f, inputData->num_vertices <= 0, "Number of vertices has to be positive");
+
+    // Output information about the instance
+    fprintf(stdout, "\nGraph has %d vertices and %d edges.\n\n", inputData->num_vertices, inputData->num_edges);
+    fprintf(output, "\nGraph has %d vertices and %d edges.\n\n", inputData->num_vertices, inputData->num_edges);
+
+    // Allocate and initialize adjacency matrix
+    alloc_matrix(inputData->Adj, inputData->num_vertices, double);
+    
+    // Read edges and fill the adjacency matrix
+    int i, j;
+    double weight;
+    for (int edge = 0; edge < inputData->num_edges; ++edge) {
+        READING_ERROR(f, fscanf(f, "%d %d %lf \n", &i, &j, &weight) != 3,
+                      "Problem reading edges of the graph"); 
+
+        READING_ERROR(f, ((i < 1 || i > inputData->num_vertices) || (j < 1 || j > inputData->num_vertices)),
+                      "Problem with edge. Vertex not in range");  
+        
+        // Adjust indices to zero-based indexing
+        inputData->Adj[ inputData->num_vertices * (j - 1) + (i - 1) ] = weight;
+        inputData->Adj[ inputData->num_vertices * (i - 1) + (j - 1) ] = weight;
+    }   
+
+    fclose(f);
+    return inputData;
+}

@@ -43,11 +43,11 @@ class SerialBiqBinMaxCut:
         return result
 
 # # Example usage
-# if __name__ == "__main__":
-#     try:
-#         bqb = SerialBiqBinMaxCut()
-#         bqb.set_instances_path("test/Instances/rudy/g05_60.0")
-#         bqb.set_params_path("test/params")
-#         bqb.call_main()
-#     except Exception as e:
-#         print(f"Error: {e}")
+if __name__ == "__main__":
+    try:
+        bqb = SerialBiqBinMaxCut()
+        bqb.set_instances_path("test/Instances/rudy/g05_60.0")
+        bqb.set_params_path("test/params")
+        bqb.call_main()
+    except Exception as e:
+        print(f"Error: {e}")
