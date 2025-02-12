@@ -13,7 +13,10 @@ extern FILE *output;
 int compute(MaxCutInputData *MC_input_data, BiqBinParameters biqbin_parameters) {
 
     srand(2024);
+    /*** allocate priority queue***/
+    heap = Init_Heap(HEAP_SIZE);
 
+    
     setParams(biqbin_parameters);
     print_parameters(biqbin_parameters);
 

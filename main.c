@@ -8,13 +8,6 @@ extern Heap *heap;
 
                       
 int main(int argc, char **argv) {
-    // Seed the random number generator
-    srand(2024);
-
-    BabNode *node;
-
-    /*** allocate priority queue ***/
-    heap = Init_Heap(HEAP_SIZE);
 
     /*
      * reads graph and params, initializes B&B solution,
