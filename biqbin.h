@@ -99,7 +99,8 @@ typedef struct Problem {
     int bundle;         // size of bundle
 } Problem;
 
-typedef struct {
+typedef struct MaxCutInputData {
+    char *name;          // Name of the graph instance
     int num_vertices;    // Number of vertices in the graph
     int num_edges;       // Number of edges in the graph
     double *Adj;         // Adjacency matrix to store edge weights
@@ -251,12 +252,17 @@ void op_Bt(const Problem *P, double *X, const double *tt);
 /* process_input.c */
 void print_symmetric_matrix(double *Mat, int N);
 void processCommandLineArguments(int argc, char **argv);
-MaxCutInputData* readGraphFile(const char *instance);
+MaxCutInputData* readGraphFile(const char *instance, MaxCutInputData *inputData);
 BiqBinParameters readParameters(const char *path);
 void setParams(BiqBinParameters params_in);
-void process_adj_matrix_set_PP_SP(MaxCutInputData *input_data);
+void processAdjMatrixSet_PP_SP(MaxCutInputData *input_data);
 void open_output_file(const char *name);
-void print_parameters(BiqBinParameters params);
+void printParameters(BiqBinParameters params);
+void printInputData(MaxCutInputData *input_data);
+void printProblem(const Problem *p);
+void printMatrix(double *Mat, int N);
+void printMatrixSum(double *Mat, int N);
+void printHeader(MaxCutInputData *input_data);
 
 /* qap_simuted_annealing.c */
 double qap_simulated_annealing(int *H, int k, double *X, int n, int *pent);

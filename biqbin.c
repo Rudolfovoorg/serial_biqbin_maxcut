@@ -10,18 +10,19 @@ extern FILE *output;
 /// @param MC_input_data 
 /// @param biqbin_parameters 
 /// @return 
+
 int compute(MaxCutInputData *MC_input_data, BiqBinParameters biqbin_parameters) {
 
     srand(2024);
     /*** allocate priority queue***/
     heap = Init_Heap(HEAP_SIZE);
 
-    
+    open_output_file(MC_input_data->name);
     setParams(biqbin_parameters);
-    print_parameters(biqbin_parameters);
-
-    process_adj_matrix_set_PP_SP(MC_input_data);
-
+    
+    // Output information about the instance
+    processAdjMatrixSet_PP_SP(MC_input_data);
+    printHeader(MC_input_data);
     // the rest is the same as in the original main.c
     BabNode *node;
 
@@ -38,6 +39,6 @@ int compute(MaxCutInputData *MC_input_data, BiqBinParameters biqbin_parameters) 
     Bab_End();
     free(heap->data);
     free(heap);
-
+    free(MC_input_data);
     return 0;
 }

@@ -20,7 +20,7 @@ extern int stopped;
 
 
 /* initialize global lower bound to 0 and global solution vector to zero */
-void initializeBabSolution(void) { 
+void initializeBabSolution(void) {
 
     BabSolution bs;
 
@@ -42,7 +42,7 @@ void Init_PQ(void) {
 
     // increase number of evaluated nodes
     Bab_incEvalNodes();
-
+    
     // Evaluate root node: compute upper and lower bound 
     root_bound = Evaluate(BabRoot, SP, PP);
 
@@ -117,6 +117,7 @@ int updateSolution(int *x) {
 
     /* If new solution is better than the global solution, 
      * then update and print the new solution. */
+    
     if (Bab_LBUpd(sol_value, &solx)) {
         solutionAdded = 1;
         printf("Node %d Feasible solution %.0lf\n", Bab_numEvalNodes(), Bab_LBGet() );

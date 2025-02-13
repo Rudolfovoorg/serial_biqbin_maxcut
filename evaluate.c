@@ -38,6 +38,7 @@ double Evaluate(BabNode *node, Problem *SP, Problem *PP) {
     double bound = SDPbound(node, SP, PP);
 
     // Save node information to the output file
+
     if (params.detailedOutput) {
         fprintf(output, "Depth = %d, Bound = %.2lf, Best = %.0lf\n", 
                 node->level, bound, Bab_LBGet());

@@ -20,3 +20,12 @@ class BiqBinParameters(ctypes.Structure):
             ('branchingStrategy', ctypes.c_int), 
             ('detailedOutput', ctypes.c_int), 
         ]
+
+
+class MaxCutInputData(ctypes.Structure):
+    _fields_ = [
+          ('name', ctypes.c_char_p),
+        ('num_vertices', ctypes.c_int),
+        ('num_edges', ctypes.c_int),
+        ('Adj', ctypes.POINTER(ctypes.c_double)),
+    ]

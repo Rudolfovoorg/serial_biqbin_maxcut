@@ -27,11 +27,32 @@ void print_symmetric_matrix(double *Mat, int N) {
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < N; j++) {
             val = (i >= j) ? Mat[i + j*N] : Mat[j + i*N];
-            printf("%24.16e", val);
+            printf("%d", (int)(val != 0)); 
         }
         printf("\n");
     }
-}        
+}
+
+void printMatrix(double *Mat, int N) {
+
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            printf("%d", (int)Mat[i + j*N]);
+        }
+        printf("\n");
+    }
+}
+
+void printMatrixSum(double *Mat, int N) {
+
+    double sum = 0.0;
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            sum += Mat[i + j*N];
+        }
+    }
+    printf("Sum of matrix = %f\n", sum);
+}
 
 void processCommandLineArguments(int argc, char **argv) {
 
@@ -41,10 +62,10 @@ void processCommandLineArguments(int argc, char **argv) {
         exit(1);
     }
 
-    /*** Read the input file instance ***/
-    MaxCutInputData *inputdata = readGraphFile(argv[1]);
-    process_adj_matrix_set_PP_SP(inputdata);
-    /*** Read the parameters from a user file ***/
+    // /*** Read the input file instance ***/
+    // MaxCutInputData *inputdata = readGraphFile(argv[1]);
+    // processAdjMatrixSet_PP_SP(inputdata);
+    // /*** Read the parameters from a user file ***/
     readParameters(argv[2]);
 }
 
@@ -112,26 +133,76 @@ void setParams(BiqBinParameters params_in) {
     params = params_in;
 }
 
-void print_parameters(BiqBinParameters params) {
-    // print parameters to output file
-    fprintf(output, "BiqBin parameters:\n");
-    #define P(type, name, format, def_value)\
-            fprintf(output, "%20s = "format"\n", #name, params.name);
+void printParameters(BiqBinParameters params_in) {
+    if (output) {
+        fprintf(output, "BiqBin parameters:\n");
+        #define P(type, name, format, def_value)\
+            fprintf(output, "%20s = "format"\n", #name, params_in.name);
+    } else {
+        printf("BiqBin parameters:\n");
+        #define P(type, name, format, def_value)\
+            printf("%20s = "format"\n", #name, params_in.name);
+    }
     PARAM_FIELDS
     #undef P
 }
 
+void printHeader(MaxCutInputData *input_data) {
+    printf("Input file: %s\n", input_data->name);
+    fprintf(output,"Input file: %s\n", input_data->name);
+
+    printf("\nGraph has %d vertices and %d edges.\n\n", input_data->num_vertices, input_data->num_edges);
+    fprintf(output, "\nGraph has %d vertices and %d edges.\n\n", input_data->num_vertices, input_data->num_edges);
+}
+
+void printInputData(MaxCutInputData *input_data) {
+    printf("Input data: %s\n", input_data->name);
+    printf("Number of vertices: %d\n", input_data->num_vertices);
+    printf("Number of edges: %d\n", input_data->num_edges);
+    //print_symmetric_matrix(input_data->Adj, input_data->num_vertices);
+}
+
+void printProblem(const Problem *p) {
+    if (!p) {
+        printf("Problem struct is NULL!\n");
+        return;
+    }
+
+    printf("Problem Details:\n");
+    printf("  n           = %d\n", p->n);
+    printf("  NIneq       = %d\n", p->NIneq);
+    printf("  NPentIneq   = %d\n", p->NPentIneq);
+    printf("  NHeptaIneq  = %d\n", p->NHeptaIneq);
+    printf("  bundle      = %d\n", p->bundle);
+
+    // Print the L matrix if it's allocated
+    int sum = 0;
+    if (p->L) {
+        for (int i = 0; i < p->n; i++) {
+            for (int j = 0; j < p->n; j++) {
+                sum += (int) p->L[i * p->n + j]; // Row-major indexing
+            }
+        }
+        printf("  Sum of L matrix = %d\n", sum);
+    } else {
+        printf("  L Matrix is NULL!\n");
+    }
+}
+
+
 /// @brief Essential before compute!!! Read input data and construct and set the matrices SP->L and PP->L.
 /// @param input_data 
-void process_adj_matrix_set_PP_SP(MaxCutInputData *input_data) {
+void processAdjMatrixSet_PP_SP(MaxCutInputData *input_data) {
     int num_vertices = input_data->num_vertices;
-    double *Adj = input_data->Adj;
+    double *Adj = (double *) malloc(num_vertices * num_vertices * sizeof(double)); // Need to copy the Adj matrix because later alloc_matrix resets it? Not sure why 
+    memcpy(Adj, input_data->Adj, num_vertices * num_vertices * sizeof(double));
+
     // allocate memory for original problem SP and subproblem PP
     alloc(SP, Problem);
     alloc(PP, Problem);
 
     // size of matrix L
-    SP->n = num_vertices;   
+    SP->n = num_vertices;
     PP->n = SP->n;
 
     // allocate memory for objective matrices for SP and PP
@@ -142,8 +213,6 @@ void process_adj_matrix_set_PP_SP(MaxCutInputData *input_data) {
     // --> BabPbSize is one less than the size of problem SP
     BabPbSize = SP->n - 1; // num_vertices - 1;
     
-    
-
     /********** construct SP->L from Adj **********/
     /*
      * SP->L = [ Laplacian,  Laplacian*e; (Laplacian*e)',  e'*Laplacian*e]
@@ -153,15 +222,17 @@ void process_adj_matrix_set_PP_SP(MaxCutInputData *input_data) {
     // NOTE: Laplacian is stored in upper left corner of L
 
     // (1) construct vec Adje = Adj*e 
+
     double *Adje;
     alloc_vector(Adje, num_vertices, double);
 
+    int le_sum = 0;
     for (int ii = 0; ii < num_vertices; ++ii) {
         for (int jj = 0; jj < num_vertices; ++jj) {
             Adje[ii] += Adj[jj + ii * num_vertices];
+            le_sum += (int)Adj[jj + ii * num_vertices];
         }
     }
-
     // (2) construct Diag(Adje)
     double *tmp;
     alloc_matrix(tmp, num_vertices, double);
@@ -179,7 +250,7 @@ void process_adj_matrix_set_PP_SP(MaxCutInputData *input_data) {
             // matrix part of L
             if ( (ii < num_vertices - 1) && (jj < num_vertices - 1) ) {
                 SP->L[jj + ii * num_vertices] = tmp[jj + ii * num_vertices] - Adj[jj + ii * num_vertices]; 
-                sum_row += SP->L[jj + ii * num_vertices];       
+                sum_row += SP->L[jj + ii * num_vertices];
             }
             // vector part of L
             else if ( (jj == num_vertices - 1) && (ii != num_vertices - 1)  ) {
@@ -197,18 +268,17 @@ void process_adj_matrix_set_PP_SP(MaxCutInputData *input_data) {
         }
         sum_row = 0.0;
     } 
-
     // NOTE: PP->L is computed in createSubproblem (evaluate.c)
-    free(Adj);
     free(Adje);
+    free(Adj);
     free(tmp);
 }
 
 /// @brief read graph file and store the information in a MaxCutInputData structure
 /// @param instance 
 /// @return MaxCutInputData*
-MaxCutInputData* readGraphFile(const char *instance) {
-    MaxCutInputData *inputData = (MaxCutInputData *)malloc(sizeof(MaxCutInputData));
+MaxCutInputData* readGraphFile(const char *instance, MaxCutInputData *inputData) {
+    inputData->name = strdup(instance);
     if (inputData == NULL) {
         fprintf(stderr, "Memory allocation failed for inputData\n");
         exit(1);
@@ -220,17 +290,11 @@ MaxCutInputData* readGraphFile(const char *instance) {
         fprintf(stderr, "Error: problem opening input file %s\n", instance);
         exit(1);
     }
-    printf("Input file: %s\n", instance);
-    fprintf(output,"Input file: %s\n", instance);
 
     // Reading the number of vertices and edges
     READING_ERROR(f, fscanf(f, "%d %d \n", &inputData->num_vertices, &inputData->num_edges) != 2,
                   "Problem reading number of vertices and edges");
     READING_ERROR(f, inputData->num_vertices <= 0, "Number of vertices has to be positive");
-
-    // Output information about the instance
-    fprintf(stdout, "\nGraph has %d vertices and %d edges.\n\n", inputData->num_vertices, inputData->num_edges);
-    fprintf(output, "\nGraph has %d vertices and %d edges.\n\n", inputData->num_vertices, inputData->num_edges);
 
     // Allocate and initialize adjacency matrix
     alloc_matrix(inputData->Adj, inputData->num_vertices, double);
