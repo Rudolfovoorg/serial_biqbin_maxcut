@@ -1,8 +1,8 @@
 import sys
 from serial_biqbin_maxcut import SerialBiqBinMaxCut
 
-path = 'test/Instances/rudy/'
 biqbin = SerialBiqBinMaxCut()
-biqbin.set_instances_path(path + 'g05_60.0')
-biqbin.set_params_path(sys.argv[2])
-biqbin.call_main()
+
+mxd, adjm = biqbin.read_maxcut_input(sys.argv[1])
+params = biqbin.read_parameters(sys.argv[2])
+result = biqbin.compute(mxd, params)

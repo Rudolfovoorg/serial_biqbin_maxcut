@@ -39,6 +39,5 @@ int compute(MaxCutInputData *MC_input_data, BiqBinParameters biqbin_parameters) 
     Bab_End();
     free(heap->data);
     free(heap);
-    free(MC_input_data);
     return 0;
 }

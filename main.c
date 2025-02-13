@@ -20,6 +20,6 @@ int main(int argc, char **argv) {
     params_local = readParameters(argv[2]); // read params file, get BiqBinParameters structure
     inputData = readGraphFile(argv[1], inputData); // read graph file, get MaxCutInputData structure
     compute(inputData, params_local); // Compute with the input data and parameters passed as args
-
+    free(inputData);
     return 0;
 }

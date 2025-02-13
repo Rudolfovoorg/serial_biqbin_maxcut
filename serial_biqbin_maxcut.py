@@ -97,22 +97,3 @@ class SerialBiqBinMaxCut:
         if not os.path.exists(filepath):
             raise FileNotFoundError(f"Params file not found: {filepath}")
         self.argv[2] = filepath.encode("utf-8")
-
-# # # Example usage
-if __name__ == "__main__":
-    # with open("compare.txt", "r") as f_1:
-    #     with open("compare_2.txt", "r") as f_2:
-    #         for line_1, line_2 in zip(f_1, f_2):
-    #             print(line_1 == line_2)
-    try:
-        bqb = SerialBiqBinMaxCut()
-        bqb.set_instances_path("test/Instances/rudy/g05_60.0")
-        bqb.set_params_path("test/params")
-        
-        params = bqb.read_parameters("test/params")
-        mxd, adjm = bqb.read_maxcut_input("test/Instances/rudy/g05_60.0")
-        result = bqb.compute(mxd, params)
-        #print(result)
-
-    except Exception as e:
-        print(f"Error: {e}")
