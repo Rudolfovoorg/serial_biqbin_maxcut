@@ -44,7 +44,7 @@ TEST = ./test.sh \
 	$(PARAMS)
 
 # Test command (for a list of files from g05_60.0 to g05_60.9)
-TEST_ALL = @for i in $(shell seq 0 9); do \
+TEST_ALL = for i in $(shell seq 0 9); do \
 		./test.sh \
 			./$(BINS) \
 			test/Instances/rudy/g05_60.$$i \
@@ -60,7 +60,7 @@ TEST_PYTHON = ./test.sh \
 	$(PARAMS)
 
 # Python test command (for a list of files from g05_60.0 to g05_60.9)
-TEST_ALL_PYTHON = @for i in $(shell seq 0 9); do \
+TEST_ALL_PYTHON = for i in $(shell seq 0 9); do \
 		./test.sh \
 			"python3 test.py" \
 			test/Instances/rudy/g05_60.$$i \
