@@ -54,26 +54,7 @@ void printMatrixSum(double *Mat, int N) {
     printf("Sum of matrix = %f\n", sum);
 }
 
-/// @brief Deprecated function, no longer needed
-/// @param argc 
-/// @param argv 
-void processCommandLineArguments(int argc, char **argv) {
-
-    // // Control the command line arguments
-    // if (argc != 3) {
-    //     fprintf(stderr, "Usage: ./biqbin file.rudy file.params\n");
-    //     exit(1);
-    // }
-
-    // // /*** Read the input file instance ***/
-    // // MaxCutInputData *inputdata = readGraphFile(argv[1]);
-    // // processAdjMatrixSetPP_SP(inputdata);
-    // // /*** Read the parameters from a user file ***/
-    // readParameters(argv[2]);
-}
-
-void open_output_file(const char *name) {
-
+void openOutputFile(const char *name) {
     // Create the output file
     char output_path[200];
     sprintf(output_path, "%s.output", name);

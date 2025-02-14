@@ -17,7 +17,7 @@ int compute(MaxCutInputData *MC_input_data, BiqBinParameters biqbin_parameters) 
     /*** allocate priority queue***/
     heap = Init_Heap(HEAP_SIZE);
 
-    open_output_file(MC_input_data->name);
+    openOutputFile(MC_input_data->name);
     setParams(biqbin_parameters);
     
     // Output information about the instance

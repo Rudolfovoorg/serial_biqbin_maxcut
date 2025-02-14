@@ -251,12 +251,11 @@ void op_Bt(const Problem *P, double *X, const double *tt);
 
 /* process_input.c */
 void print_symmetric_matrix(double *Mat, int N);
-void processCommandLineArguments(int argc, char **argv);
 MaxCutInputData* readGraphFile(const char *instance, MaxCutInputData *inputData);
 BiqBinParameters readParameters(const char *path);
 void setParams(BiqBinParameters params_in);
 void processAdjMatrixSetPP_SP(MaxCutInputData *input_data);
-void open_output_file(const char *name);
+void openOutputFile(const char *name);
 void printParameters(BiqBinParameters params);
 void printInputData(MaxCutInputData *input_data);
 void printProblem(const Problem *p);
