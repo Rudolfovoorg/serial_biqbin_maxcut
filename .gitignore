@@ -4,7 +4,7 @@ Obj/
 *.o
 biqbin
 *.output*
-
-__pycache__/serial_biqbin_maxcut.cpython-310.pyc
+__pycache__/
 .vscode/settings.json
 .gitignore
+biqbin.so

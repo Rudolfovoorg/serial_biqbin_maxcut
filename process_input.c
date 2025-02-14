@@ -54,19 +54,22 @@ void printMatrixSum(double *Mat, int N) {
     printf("Sum of matrix = %f\n", sum);
 }
 
+/// @brief Deprecated function, no longer needed
+/// @param argc 
+/// @param argv 
 void processCommandLineArguments(int argc, char **argv) {
 
-    // Control the command line arguments
-    if (argc != 3) {
-        fprintf(stderr, "Usage: ./biqbin file.rudy file.params\n");
-        exit(1);
-    }
+    // // Control the command line arguments
+    // if (argc != 3) {
+    //     fprintf(stderr, "Usage: ./biqbin file.rudy file.params\n");
+    //     exit(1);
+    // }
 
-    // /*** Read the input file instance ***/
-    // MaxCutInputData *inputdata = readGraphFile(argv[1]);
-    // processAdjMatrixSet_PP_SP(inputdata);
-    // /*** Read the parameters from a user file ***/
-    readParameters(argv[2]);
+    // // /*** Read the input file instance ***/
+    // // MaxCutInputData *inputdata = readGraphFile(argv[1]);
+    // // processAdjMatrixSetPP_SP(inputdata);
+    // // /*** Read the parameters from a user file ***/
+    // readParameters(argv[2]);
 }
 
 void open_output_file(const char *name) {
@@ -112,17 +115,14 @@ BiqBinParameters readParameters(const char *path) {
     
     while (!feof(paramfile)) {
         if ( fgets(s, 120, paramfile) != NULL ) {
-        
             // read parameter name
             sscanf(s, "%[^=^ ]", param_name);
-
             // read parameter value
         #define P(type, name, format, def_value)\
             if(strcmp(#name, param_name) == 0)\
             sscanf(s, "%*[^=]="format"\n", &(params_local.name));
             PARAM_FIELDS
         #undef P
-
         }
     }
     fclose(paramfile);
@@ -134,25 +134,31 @@ void setParams(BiqBinParameters params_in) {
 }
 
 void printParameters(BiqBinParameters params_in) {
-    if (output) {
-        fprintf(output, "BiqBin parameters:\n");
-        #define P(type, name, format, def_value)\
-            fprintf(output, "%20s = "format"\n", #name, params_in.name);
-    } else {
-        printf("BiqBin parameters:\n");
-        #define P(type, name, format, def_value)\
-            printf("%20s = "format"\n", #name, params_in.name);
-    }
+    printf("BiqBin parameters:\n");
+    #define P(type, name, format, def_value) \
+        printf("%20s = " format "\n", #name, params_in.name);
+
     PARAM_FIELDS
     #undef P
+
+    if (output) {
+        fprintf(output, "BiqBin parameters:\n");
+        #define P(type, name, format, def_value) \
+        fprintf(output ? output : stdout, "%20s = " format "\n", #name, params_in.name);
+
+        PARAM_FIELDS
+        #undef P
+    }
 }
 
 void printHeader(MaxCutInputData *input_data) {
     printf("Input file: %s\n", input_data->name);
-    fprintf(output,"Input file: %s\n", input_data->name);
-
     printf("\nGraph has %d vertices and %d edges.\n\n", input_data->num_vertices, input_data->num_edges);
-    fprintf(output, "\nGraph has %d vertices and %d edges.\n\n", input_data->num_vertices, input_data->num_edges);
+
+    if (output) {
+        fprintf(output,"Input file: %s\n", input_data->name);
+        fprintf(output, "\nGraph has %d vertices and %d edges.\n\n", input_data->num_vertices, input_data->num_edges);
+    }
 }
 
 void printInputData(MaxCutInputData *input_data) {
@@ -190,11 +196,13 @@ void printProblem(const Problem *p) {
 }
 
 
-/// @brief Essential before compute!!! Read input data and construct and set the matrices SP->L and PP->L.
+/// @brief Essential before compute! Read input data and construct and set the matrices SP->L and PP->L.
 /// @param input_data 
-void processAdjMatrixSet_PP_SP(MaxCutInputData *input_data) {
+void processAdjMatrixSetPP_SP(MaxCutInputData *input_data) {
     int num_vertices = input_data->num_vertices;
-    double *Adj = (double *) malloc(num_vertices * num_vertices * sizeof(double)); // Need to copy the Adj matrix because later alloc_matrix resets it? Not sure why 
+
+    // Need to copy the Adj matrix because alloc_matrix(SO->L) resets it? Not sure why, only a problem when it is ran through Python.
+    double *Adj = (double *) malloc(num_vertices * num_vertices * sizeof(double));
     memcpy(Adj, input_data->Adj, num_vertices * num_vertices * sizeof(double));
 
     // allocate memory for original problem SP and subproblem PP

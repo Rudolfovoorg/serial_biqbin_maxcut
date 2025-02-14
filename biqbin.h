@@ -255,7 +255,7 @@ void processCommandLineArguments(int argc, char **argv);
 MaxCutInputData* readGraphFile(const char *instance, MaxCutInputData *inputData);
 BiqBinParameters readParameters(const char *path);
 void setParams(BiqBinParameters params_in);
-void processAdjMatrixSet_PP_SP(MaxCutInputData *input_data);
+void processAdjMatrixSetPP_SP(MaxCutInputData *input_data);
 void open_output_file(const char *name);
 void printParameters(BiqBinParameters params);
 void printInputData(MaxCutInputData *input_data);

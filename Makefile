@@ -89,3 +89,4 @@ clean :
 	rm -rf test/test.dat.output*
 	rm -rf *.output*
 	rm -f biqbin.so
+	rm -rf __pycache__
