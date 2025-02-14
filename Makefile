@@ -19,19 +19,55 @@ OPTI     = -O3 -fPIC -g
 # binary
 BINS =  biqbin
 
-# test command
+# Test input and expected output
+PARAMS = test/params
+TEST_INSTANCE = test/Instances/rudy/g05_60.0
+TEST_EXPECTED = test/Instances/rudy/g05_60.0-expected_output
+TEST_INSTANCES = $(foreach i, $(shell seq 0 9), test/Instances/rudy/g05_60.$$i)
+TEST_EXPECTED_OUTS = $(foreach i, $(shell seq 0 9), test/Instances/rudy/g05_60.$$i-expected_output)
+
+
+
+
+# Define file paths as variables
+PARAMS = test/params
+TEST_INSTANCE = test/Instances/rudy/g05_60.0
+TEST_EXPECTED = test/Instances/rudy/g05_60.0-expected_output
+TEST_INSTANCES = $(foreach i, $(shell seq 0 9), test/Instances/rudy/g05_60.$$i)
+TEST_EXPECTED_OUTS = $(foreach i, $(shell seq 0 9), test/Instances/rudy/g05_60.$$i-expected_output)
+
+# Test command
 TEST = ./test.sh \
 	./$(BINS) \
-	test/Instances/rudy/g05_60.0 \
-	test/Instances/rudy/g05_60.0-expected_output \
-	test/params
+	$(TEST_INSTANCE) \
+	$(TEST_EXPECTED) \
+	$(PARAMS)
 
-# python test command
+# Test command (for a list of files from g05_60.0 to g05_60.9)
+TEST_ALL = @for i in $(shell seq 0 9); do \
+		./test.sh \
+			./$(BINS) \
+			test/Instances/rudy/g05_60.$$i \
+			test/Instances/rudy/g05_60.$$i-expected_output \
+			$(PARAMS); \
+	done
+
+# Python test command
 TEST_PYTHON = ./test.sh \
 	"python3 test.py" \
-	test/Instances/rudy/g05_60.0 \
-	test/Instances/rudy/g05_60.0-expected_output \
-	test/params
+	$(TEST_INSTANCE) \
+	$(TEST_EXPECTED) \
+	$(PARAMS)
+
+# Python test command (for a list of files from g05_60.0 to g05_60.9)
+TEST_ALL_PYTHON = @for i in $(shell seq 0 9); do \
+		./test.sh \
+			"python3 test.py" \
+			test/Instances/rudy/g05_60.$$i \
+			test/Instances/rudy/g05_60.$$i-expected_output \
+			$(PARAMS); \
+	done
+
 
 # BiqBin objects
 BBOBJS = $(OBJ)/bundle.o $(OBJ)/allocate_free.o $(OBJ)/bab_functions.o \
@@ -43,7 +79,6 @@ BBOBJS = $(OBJ)/bundle.o $(OBJ)/allocate_free.o $(OBJ)/bab_functions.o \
 
 # All objects
 OBJS = $(BBOBJS)
-
 CFLAGS = $(OPTI) -Wall -W -pedantic
 
 
@@ -58,6 +93,12 @@ all: $(BINS) biqbin.so
 test: all
 	$(TEST)
 	$(TEST_PYTHON)
+
+test-all: all
+	$(TEST_ALL)
+	$(TEST_ALL_PYTHON)
+
+# Test command for all files (g05_60.0 to g05_60.9)
 
 docker: 
 	docker build $(DOCKER_BUILD_PARAMS) --progress=plain -t $(IMAGE):$(TAG)  . 

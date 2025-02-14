@@ -18,8 +18,8 @@ class SerialBiqBinMaxCut:
         self.biqbin.main.restype = ctypes.c_int
 
         # parse matrix
-        self.biqbin.processAdjMatrixSet_PP_SP.argtypes = [ctypes.POINTER(MaxCutInputData)]
-        self.biqbin.processAdjMatrixSet_PP_SP.restype = None
+        self.biqbin.processAdjMatrixSetPP_SP.argtypes = [ctypes.POINTER(MaxCutInputData)]
+        self.biqbin.processAdjMatrixSetPP_SP.restype = None
 
         # Read parameters
         self.biqbin.readParameters.argtypes = [ctypes.c_char_p]
@@ -50,7 +50,7 @@ class SerialBiqBinMaxCut:
         return result
     
     def process_adj_matrix_set_PP_SP(self, maxcut_data):
-        self.biqbin.processAdjMatrixSet_PP_SP(ctypes.pointer(maxcut_data))
+        self.biqbin.processAdjMatrixSetPP_SP(ctypes.pointer(maxcut_data))
     
     def read_maxcut_input(self, filename):
         with open(filename, 'r') as f:

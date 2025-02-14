@@ -21,7 +21,7 @@ int compute(MaxCutInputData *MC_input_data, BiqBinParameters biqbin_parameters) 
     setParams(biqbin_parameters);
     
     // Output information about the instance
-    processAdjMatrixSet_PP_SP(MC_input_data);
+    processAdjMatrixSetPP_SP(MC_input_data);
     printHeader(MC_input_data);
     // the rest is the same as in the original main.c
     BabNode *node;

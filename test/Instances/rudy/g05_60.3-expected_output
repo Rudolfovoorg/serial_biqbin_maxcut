@@ -1,0 +1,12 @@
+Input file: test/Instances/rudy/g05_60.3
+
+Graph has 60 vertices and 885 edges.
+
+Node 1 Feasible solution 538
+
+Nodes = 1
+Root node bound = 538.954
+Maximum value = 538
+Solution = ( 3 4 6 8 9 10 11 13 14 15 16 23 28 32 33 35 36 39 40 41 43 45 46 47 48 49 50 51 52 59 )
+Wall clock time = 0.17 s
+
