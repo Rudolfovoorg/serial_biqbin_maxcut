@@ -127,7 +127,7 @@ biqbin.so: $(OBJS)
 # Clean rule #
 clean :
 	rm -rf $(BINS) $(OBJ)
-	rm -rf test/test.dat.output*
+	rm -rf test/Instances/rudy/*.output*
 	rm -rf *.output*
 	rm -f biqbin.so
 	rm -rf __pycache__

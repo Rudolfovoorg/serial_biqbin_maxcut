@@ -13,14 +13,6 @@ class SerialBiqBinMaxCut:
         self.biqbin.compute.argtypes = [ctypes.POINTER(MaxCutInputData), BiqBinParameters]
         self.biqbin.compute.restype = ctypes.c_int
 
-        # Define the argument types and return type for main()
-        self.biqbin.main.argtypes = [ctypes.c_int, ctypes.POINTER(ctypes.c_char_p)]
-        self.biqbin.main.restype = ctypes.c_int
-
-        # parse matrix
-        self.biqbin.processAdjMatrixSetPP_SP.argtypes = [ctypes.POINTER(MaxCutInputData)]
-        self.biqbin.processAdjMatrixSetPP_SP.restype = None
-
         # Read parameters
         self.biqbin.readParameters.argtypes = [ctypes.c_char_p]
         self.biqbin.readParameters.restype = BiqBinParameters
@@ -31,26 +23,9 @@ class SerialBiqBinMaxCut:
         self.biqbin.printInputData.argtypes = [ctypes.POINTER(MaxCutInputData)]
         self.biqbin.printInputData.restype = None
 
-        # Initialize arguments
-        self.argc = 3
-        self.argv = (ctypes.c_char_p * (self.argc + 1))()
-
     def compute(self, maxcut_data, params):
         return self.biqbin.compute(ctypes.pointer(maxcut_data), params)
-
-    def call_main(self):
-        self.argv[0] = b"./biqbin"
-        # Validate paths
-        if not os.path.exists(self.argv[1]):
-            raise FileNotFoundError(f"Instance file not found: {self.argv[1].decode('utf-8')}")
-        if not os.path.exists(self.argv[2]):
-            raise FileNotFoundError(f"Params file not found: {self.argv[2].decode('utf-8')}")
-        self.argv[3] = None
-        result = self.biqbin.main(self.argc, self.argv)
-        return result
     
-    def process_adj_matrix_set_PP_SP(self, maxcut_data):
-        self.biqbin.processAdjMatrixSetPP_SP(ctypes.pointer(maxcut_data))
     
     def read_maxcut_input(self, filename):
         with open(filename, 'r') as f:
@@ -78,22 +53,36 @@ class SerialBiqBinMaxCut:
 
             return maxcut_data, adj_matrix  # Returning the matrix for debugging
 
-    def read_parameters(self, filepath):
+    def read_parameters_with_biqbin(self, filepath):
         filepath_bytes = filepath.encode('utf-8')
         return self.biqbin.readParameters(filepath_bytes)
+    
+    def read_parameters_with_python(self, filename):
+        params = BiqBinParameters()
+        # Mapping field names to types
+        field_types = {name: typ for name, typ in BiqBinParameters._fields_}
+        with open(filename, 'r') as f:
+            for line in f.readlines():
+                key_val = line.strip().split('=')
+                if len(key_val) != 2:
+                    print(f"Skipping invalid line: {line.strip()}")
+                    continue  # Skip invalid lines
+                key, value = key_val[0].strip(), key_val[1].strip()
+                if hasattr(params, key):
+                    field_type = field_types[key]
+                    # Convert value to the correct type
+                    if field_type == ctypes.c_int:
+                        setattr(params, key, int(value))
+                    elif field_type == ctypes.c_double:
+                        setattr(params, key, float(value))
+                    else:
+                        print(f"Unknown type for field: {key}")
+                else:
+                    print(f"Unknown parameter: {key}")
+        return params  # Return the filled struct
     
     def print_parameters(self, params):
         self.biqbin.printParameters(params)
 
     def print_input_data(self, maxcut_data):
         self.biqbin.printInputData(ctypes.pointer(maxcut_data))
-
-    def set_instances_path(self, filepath):
-        if not os.path.exists(filepath):
-            raise FileNotFoundError(f"Instance file not found: {filepath}")
-        self.argv[1] = filepath.encode("utf-8")
-
-    def set_params_path(self, filepath):
-        if not os.path.exists(filepath):
-            raise FileNotFoundError(f"Params file not found: {filepath}")
-        self.argv[2] = filepath.encode("utf-8")
