@@ -21,7 +21,6 @@ extern double *X_test;
 
 /******** main bounding routine calling bundle method ********/
 double SDPbound(BabNode *node, Problem *SP, Problem *PP) {
-
     int index;                      // helps to store the fractional solution in the node
     double bound;                   // f + fixedvalue
     double gap;                     // difference between best lower bound and upper bound
@@ -77,10 +76,10 @@ double SDPbound(BabNode *node, Problem *SP, Problem *PP) {
 
     /* solve basic SDP relaxation with interior-point method */
     ipm_mc_pk(PP->L, PP->n, X, &f, 0);
-
+    
     // store basic SDP bound to compute diff in the root node
     double basic_bound = f + fixedvalue;
-
+    
     // Store the fractional solution in the node    
     index = 0;
     for (int i = 0; i < BabPbSize; ++i) {
@@ -93,7 +92,7 @@ double SDPbound(BabNode *node, Problem *SP, Problem *PP) {
             ++index;
         }
     }
-
+    
     /* run heuristic */
     for (int i = 0; i < BabPbSize; ++i) {
         if (node->xfixed[i]) {
@@ -187,7 +186,6 @@ double SDPbound(BabNode *node, Problem *SP, Problem *PP) {
 
     // initialize the bundle counter
     PP->bundle = 1;
-
 
     /*** Main loop ***/
     while (!done) {

@@ -22,7 +22,7 @@ filter_out_root_node_bound_value() {
     sed 's/Root node bound = .*/Root node bound = /g'
 }
 
-output=$(./biqbin $2 $4) || exit $?
+output=$($1 $2 $4) || exit $?
 # Filter out value which may vary due to randomnes.
 output_filtered=$(echo "$output" | filter_out_wall_time_line_value | filter_out_root_node_bound_value) || exit $?
 

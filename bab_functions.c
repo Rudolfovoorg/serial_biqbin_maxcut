@@ -20,7 +20,7 @@ extern int stopped;
 
 
 /* initialize global lower bound to 0 and global solution vector to zero */
-void initializeBabSolution(void) { 
+void initializeBabSolution(void) {
 
     BabSolution bs;
 
@@ -42,7 +42,7 @@ void Init_PQ(void) {
 
     // increase number of evaluated nodes
     Bab_incEvalNodes();
-
+    
     // Evaluate root node: compute upper and lower bound 
     root_bound = Evaluate(BabRoot, SP, PP);
 
@@ -65,13 +65,12 @@ void Init_PQ(void) {
  * Bab function which initializes the problem, allocate the structures 
  * and evaluate the root node.
  */
-void Bab_Init(int argc, char **argv) {
+void Bab_Init() {
 
     // Start the timer
     TIME = time_wall_clock();
 
     // Process the command line arguments
-    processCommandLineArguments(argc, argv);
 
     // Provide B&B with an initial solution
     initializeBabSolution();
@@ -95,7 +94,6 @@ double evaluateSolution(int *sol) {
             val += SP->L[j + i * SP->n] * sol[i] * sol[j];
         }
     }
-
     return val;
 }
 
@@ -119,6 +117,7 @@ int updateSolution(int *x) {
 
     /* If new solution is better than the global solution, 
      * then update and print the new solution. */
+    
     if (Bab_LBUpd(sol_value, &solx)) {
         solutionAdded = 1;
         printf("Node %d Feasible solution %.0lf\n", Bab_numEvalNodes(), Bab_LBGet() );

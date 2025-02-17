@@ -1,40 +1,21 @@
 #include <stdio.h>
 #include <stdlib.h>
-
 #include "biqbin.h"  
-
-#define HEAP_SIZE 10000000
-extern Heap *heap;
 
                       
 int main(int argc, char **argv) {
-
-    // Seed the random number generator
-    srand(2024);
-
-    BabNode *node;
-
-    /*** allocate priority queue ***/
-    heap = Init_Heap(HEAP_SIZE);
-
-    /*
-     * reads graph and params, initializes B&B solution,
-     * evaluates root node and places it in priority queue
-     * if not able to prune
-     */
-    Bab_Init(argc, argv);
-
-    while (!isPQEmpty()) {
-        node = Bab_PQPop();
-        Bab_GenChild(node);
+    if (argc != 3) {
+        fprintf(stderr, "Running main requires instance and paramaters arguments!\nUsage: ./biqbin file.rudy file.params\n");
+        exit(1);
     }
+    MaxCutInputData *inputData = (MaxCutInputData *)malloc(sizeof(MaxCutInputData));
+    BiqBinParameters params_local;
 
-    /* prints solution and frees memory */
-    Bab_End();
+    params_local = readParameters(argv[2]); // read params file, get BiqBinParameters structure
+    inputData = readGraphFile(argv[1], inputData); // read graph file, get MaxCutInputData structure
 
-    free(heap->data);
-    free(heap);
+    compute(inputData, params_local); // Compute with the input data and parameters passed as args
 
-    return 0;
-    
+    free(inputData);
+    exit(0);
 }
