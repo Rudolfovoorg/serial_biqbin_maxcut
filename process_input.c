@@ -181,10 +181,8 @@ void printProblem(const Problem *p) {
 /// @param input_data 
 void processAdjMatrixSetPP_SP(MaxCutInputData *input_data) {
     int num_vertices = input_data->num_vertices;
-
     // Need to copy the Adj matrix because alloc_matrix(SO->L) resets it? Not sure why, only a problem when it is ran through Python.
-    double *Adj = (double *) malloc(num_vertices * num_vertices * sizeof(double));
-    memcpy(Adj, input_data->Adj, num_vertices * num_vertices * sizeof(double));
+    double *Adj = input_data->Adj;
 
     // allocate memory for original problem SP and subproblem PP
     alloc(SP, Problem);
@@ -193,11 +191,12 @@ void processAdjMatrixSetPP_SP(MaxCutInputData *input_data) {
     // size of matrix L
     SP->n = num_vertices;
     PP->n = SP->n;
-
+    printMatrixSum(Adj, num_vertices);
     // allocate memory for objective matrices for SP and PP
     alloc_matrix(SP->L, SP->n, double);
     alloc_matrix(PP->L, SP->n, double);
-
+    printMatrixSum(input_data->Adj, num_vertices);
+    printMatrixSum(Adj, num_vertices);
     // IMPORTANT: last node is fixed to 0
     // --> BabPbSize is one less than the size of problem SP
     BabPbSize = SP->n - 1; // num_vertices - 1;
@@ -214,6 +213,7 @@ void processAdjMatrixSetPP_SP(MaxCutInputData *input_data) {
 
     double *Adje;
     alloc_vector(Adje, num_vertices, double);
+    printMatrixSum(input_data->Adj, num_vertices);
 
     int le_sum = 0;
     for (int ii = 0; ii < num_vertices; ++ii) {
@@ -259,14 +259,14 @@ void processAdjMatrixSetPP_SP(MaxCutInputData *input_data) {
     } 
     // NOTE: PP->L is computed in createSubproblem (evaluate.c)
     free(Adje);
-    free(Adj);
     free(tmp);
 }
 
 /// @brief read graph file and store the information in a MaxCutInputData structure
 /// @param instance 
 /// @return MaxCutInputData*
-MaxCutInputData* readGraphFile(const char *instance, MaxCutInputData *inputData) {
+MaxCutInputData* readGraphFile(const char *instance) {
+    MaxCutInputData *inputData = (MaxCutInputData *)malloc(sizeof(MaxCutInputData));
     inputData->name = strdup(instance);
     if (inputData == NULL) {
         fprintf(stderr, "Memory allocation failed for inputData\n");
