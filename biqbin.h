@@ -251,7 +251,10 @@ void op_Bt(const Problem *P, double *X, const double *tt);
 
 /* process_input.c */
 void print_symmetric_matrix(double *Mat, int N);
-MaxCutInputData* readGraphFile(const char *instance, MaxCutInputData *inputData);
+
+//MaxCutInputData* readGraphFile(const char *instance, MaxCutInputData *inputData);
+MaxCutInputData* readGraphFile(const char *instance);
+
 BiqBinParameters readParameters(const char *path);
 void setParams(BiqBinParameters params_in);
 void processAdjMatrixSetPP_SP(MaxCutInputData *input_data);
@@ -267,6 +270,8 @@ void printHeader(MaxCutInputData *input_data);
 double qap_simulated_annealing(int *H, int k, double *X, int n, int *pent);
 
 /* biqbin.c */
+int compute_wrapped(double *d, int number_of_vertices, int number_of_edges, char * name, BiqBinParameters biqbin_parameters);
 int compute(MaxCutInputData *MC_input_data, BiqBinParameters biqbin_parameters);
+//int compute(double * d, BiqBinParameters biqbin_parameters);
 
 #endif /*BIQBIN_H */
