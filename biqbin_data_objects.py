@@ -1,4 +1,6 @@
 import ctypes
+import numpy as np
+
 
 class BiqBinParameters(ctypes.Structure):
         """ creates a struct to match emxArray_real_T """
@@ -24,8 +26,9 @@ class BiqBinParameters(ctypes.Structure):
 
 class MaxCutInputData(ctypes.Structure):
     _fields_ = [
-          ('name', ctypes.c_char_p),
+        ('name', ctypes.c_char_p),
         ('num_vertices', ctypes.c_int),
         ('num_edges', ctypes.c_int),
-        ('Adj', ctypes.POINTER(ctypes.c_double)),
+        ('Adj', ctypes.POINTER(ctypes.c_double))
+ #       ('Adj', np.ctypeslib.ndpointer(dtype=np.float64, ndim=2, flags='C_CONTIGUOUS')),
     ]

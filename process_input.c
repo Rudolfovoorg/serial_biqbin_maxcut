@@ -191,12 +191,16 @@ void processAdjMatrixSetPP_SP(MaxCutInputData *input_data) {
     // size of matrix L
     SP->n = num_vertices;
     PP->n = SP->n;
-    printMatrixSum(Adj, num_vertices);
+ //   printMatrixSum(Adj, num_vertices);
+//    printf("\n\naddress of a = %p\n", Adj); fflush(stdout);
+
+ 
     // allocate memory for objective matrices for SP and PP
     alloc_matrix(SP->L, SP->n, double);
     alloc_matrix(PP->L, SP->n, double);
-    printMatrixSum(input_data->Adj, num_vertices);
-    printMatrixSum(Adj, num_vertices);
+//    printf("address of a = %p\n", Adj);
+//    printMatrixSum(input_data->Adj, num_vertices);
+ //   printMatrixSum(Adj, num_vertices);
     // IMPORTANT: last node is fixed to 0
     // --> BabPbSize is one less than the size of problem SP
     BabPbSize = SP->n - 1; // num_vertices - 1;
@@ -213,7 +217,7 @@ void processAdjMatrixSetPP_SP(MaxCutInputData *input_data) {
 
     double *Adje;
     alloc_vector(Adje, num_vertices, double);
-    printMatrixSum(input_data->Adj, num_vertices);
+ //   printMatrixSum(input_data->Adj, num_vertices);
 
     int le_sum = 0;
     for (int ii = 0; ii < num_vertices; ++ii) {

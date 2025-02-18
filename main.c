@@ -11,11 +11,13 @@ int main(int argc, char **argv) {
     MaxCutInputData *inputData = (MaxCutInputData *)malloc(sizeof(MaxCutInputData));
     BiqBinParameters params_local;
 
-    params_local = readParameters(argv[2]); // read params file, get BiqBinParameters structure
-    inputData = readGraphFile(argv[1], inputData); // read graph file, get MaxCutInputData structure
+   params_local = readParameters(argv[2]); // read params file, get BiqBinParameters structure
+//    inputData = readGraphFile(argv[1], inputData); // read graph file, get MaxCutInputData structure
+   inputData = readGraphFile(argv[1]); // read graph file, get MaxCutInputData structure
 
-    compute(inputData, params_local); // Compute with the input data and parameters passed as args
+   compute(inputData, params_local); // Compute with the input data and parameters passed as args
 
-    free(inputData);
-    exit(0);
+   free(inputData);
+    
+   return 0;
 }

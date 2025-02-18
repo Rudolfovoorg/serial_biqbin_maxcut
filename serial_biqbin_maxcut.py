@@ -1,7 +1,9 @@
+# see: https://stackoverflow.com/questions/4355524/getting-data-from-ctypes-array-into-numpy
+
 import ctypes
 import os
 import numpy as np
-from biqbin_data_objects import MaxCutInputData, BiqBinParameters
+from biqbin_data_objects import BiqBinParameters, MaxCutInputData
 
 class SerialBiqBinMaxCut:
     def __init__(self, biqbin_path="biqbin.so"):
@@ -10,8 +12,15 @@ class SerialBiqBinMaxCut:
             raise FileNotFoundError(f"Shared library not found: {biqbin_path}")
         self.biqbin = ctypes.CDLL(os.path.abspath(biqbin_path))
 
-        self.biqbin.compute.argtypes = [ctypes.POINTER(MaxCutInputData), BiqBinParameters]
-        self.biqbin.compute.restype = ctypes.c_int
+        self.biqbin.compute_wrapped.argtypes = [
+            np.ctypeslib.ndpointer(dtype=np.float64, ndim=2, flags='C_CONTIGUOUS'), 
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_char_p,
+            BiqBinParameters
+            ]
+
+        self.biqbin.compute_wrapped.restype = ctypes.c_int
 
         # Read parameters
         self.biqbin.readParameters.argtypes = [ctypes.c_char_p]
@@ -23,8 +32,8 @@ class SerialBiqBinMaxCut:
         self.biqbin.printInputData.argtypes = [ctypes.POINTER(MaxCutInputData)]
         self.biqbin.printInputData.restype = None
 
-    def compute(self, maxcut_data, params):
-        return self.biqbin.compute(ctypes.pointer(maxcut_data), params)
+    def compute(self, adj_matrix, num_vertices, num_edges, name, params):
+        return self.biqbin.compute_wrapped(adj_matrix, num_vertices, num_edges, name, params)
     
     
     def read_maxcut_input(self, filename):
@@ -44,14 +53,10 @@ class SerialBiqBinMaxCut:
                 adj_matrix[i, j] = weight
                 adj_matrix[j, i] = weight  # Since the graph is undirected
 
-            # Convert NumPy array to ctypes pointer (1D row-major)
-            adj_ptr = adj_matrix.flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_double))
             # Create the MaxCutInputData struct
             name = filename.encode('utf-8')
-            maxcut_data = MaxCutInputData(name, num_vertices, num_edges, adj_ptr)
-            maxcut_data._adj_matrix = adj_matrix  # Prevents premature deallocation
 
-            return maxcut_data, adj_matrix  # Returning the matrix for debugging
+            return adj_matrix, num_vertices, num_edges, name  # Returning the matrix for debugging
 
     def read_parameters_with_biqbin(self, filepath):
         filepath_bytes = filepath.encode('utf-8')
